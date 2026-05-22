@@ -1,216 +1,241 @@
 # 📝 Blog App
 
-A full-stack blogging platform with role-based access control, built with **React** and **Express.js**.
+A full-stack blogging platform with role-based access control, built with **React 19** and **Express.js**. Features secure JWT authentication, article management with recommendations, and a modern responsive UI.
+
+---
+
+## 📚 Documentation
+
+This project is split into two main applications with separate READMEs:
+
+### 🎨 [Frontend Documentation](./blog-app-frontend/README.md)
+**React 19 + Vite + Tailwind CSS**
+- User interface & components
+- Authentication & authorization
+- Article browsing & management
+- Setup & deployment guides
+- Tech stack: React, Vite, Tailwind, Framer Motion, Zustand
+
+### 🔧 [Backend Documentation](./blog-app-backend/README.md)
+**Express.js + MongoDB + Mongoose**
+- REST API endpoints
+- Authentication & JWT
+- Database models & schemas
+- File upload handling
+- Setup & deployment guides
+- Tech stack: Express, Mongoose, JWT, Cloudinary
+
+---
 
 ## 🌐 Live Demo
 
-| Service  | URL |
-|----------|-----|
-| Frontend | Deployed on **Vercel** |
-| Backend  | Deployed on **Render** |
+| Service  | Platform | URL |
+|----------|----------|-----|
+| Frontend | **Vercel** | Deployed on Vercel |
+| Backend  | **Render** | Deployed on Render |
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **User Registration & Login** — secure authentication with JWT (HTTP-only cookies)
-- **Role-Based Access** — three roles: `USER`, `AUTHOR`, `ADMIN`
-  - **User** — browse articles, post comments
-  - **Author** — write, edit, and manage their own articles
-  - **Admin** — manage users, enable / disable accounts
-- **Article Management** — full CRUD for articles with categories, tags & comments
-- **Search and discovery** — full-text search, category/tag filtering, and trending/popular article lists
-- **Recommended Articles** — each article suggests related content by author, category, or tags
-- **Saved Articles** — users can bookmark articles for later review in their profile
-- **Likes** — readers can like articles and authors can track engagement
-- **Image Uploads** — profile pictures & article images via Cloudinary + Multer
-- **Protected Routes** — client-side route guards based on user role
+- ✅ **User Registration & Login** — Secure JWT authentication with HTTP-only cookies
+- ✅ **Role-Based Access** — Three roles: USER, AUTHOR, ADMIN with specific permissions
+- ✅ **Article Management** — Full CRUD with categories, tags, and comments
+- ✅ **Search & Discovery** — Full-text search, filtering by category/tags, trending/popular lists
+- ✅ **Recommended Articles** — AI-like suggestions based on author, category, or tags
+- ✅ **Saved Articles** — Users can bookmark articles for later
+- ✅ **Engagement Metrics** — Like system and engagement tracking
+- ✅ **Image Uploads** — Profile pictures & article images via Cloudinary
+- ✅ **Protected Routes** — Client-side route guards based on user roles
+- ✅ **Dark Mode** — Theme toggle with persistent preferences
+- ✅ **Responsive Design** — Mobile-first UI with Tailwind CSS
+- ✅ **Smooth Animations** — Framer Motion animations for enhanced UX
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack Overview
 
 ### Frontend
-| Technology | Purpose |
-|------------|---------|
-| React 19 | UI library |
-| React Router 7 | Client-side routing |
-| Zustand | Global state management |
-| Axios | HTTP client |
-| React Hook Form | Form handling & validation |
-| React Hot Toast | Toast notifications |
-| Tailwind CSS 4 | Styling |
-| Vite 8 | Build tool & dev server |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.2.4 | UI library |
+| Vite | 8.0.1 | Build tool & dev server |
+| React Router | 7.13.2 | Client-side routing |
+| Tailwind CSS | 4.2.2 | Styling |
+| Framer Motion | 12.40.0 | Animations |
+| Zustand | 5.0.12 | State management |
+| Axios | 1.14.0 | HTTP client |
 
 ### Backend
-| Technology | Purpose |
-|------------|---------|
-| Express 5 | Web framework |
-| Mongoose 9 | MongoDB ODM |
-| JSON Web Token | Authentication |
-| bcryptjs | Password hashing |
-| Cloudinary | Cloud image storage |
-| Multer | File upload middleware |
-| cookie-parser | HTTP-only cookie handling |
-| dotenv | Environment variable management |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Express | 5.x | Web framework |
+| Mongoose | 9.x | MongoDB ODM |
+| JWT | - | Authentication |
+| bcryptjs | - | Password hashing |
+| Cloudinary | - | Image hosting |
+| Multer | - | File uploads |
 
 ### Database
-- **MongoDB Atlas** (cloud-hosted)
+| Service | Type |
+|---------|------|
+| MongoDB Atlas | Cloud-hosted NoSQL |
 
 ---
-
-## 🌟 Unique Learning Experience
-
-This app takes the traditional blog format a step further by making content feel like a structured article experience. Users can browse articles by category, follow related reading paths, and discover recommended next articles while reading.
 
 ## 📁 Project Structure
 
 ```
-blog-app/
-├── blog-app-backend/
-│   ├── APIs/
-│   │   ├── AdminAPI.js       # Admin routes (user management)
-│   │   ├── AuthorAPI.js      # Author routes (article CRUD)
-│   │   ├── CommonAPI.js      # Auth routes (register, login, logout)
-│   │   └── UserAPI.js        # User routes (profile, comments)
-│   ├── config/               # Cloudinary & other config
-│   ├── middlewares/
-│   │   └── verifyToken.js    # JWT verification middleware
-│   ├── models/
-│   │   ├── ArticleModel.js   # Article & Comment schemas
-│   │   └── UserModel.js      # User schema
-│   ├── server.js             # App entry point
-│   ├── render.yaml           # Render deployment config
-│   └── .env                  # Environment variables (not committed)
+Blog-App/
+├── README.md                      # This file (root overview)
 │
-├── blog-app-frontend/
+├── blog-app-frontend/             # React 19 frontend
+│   ├── README.md                  # Frontend-specific docs
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Header.jsx          # Navigation bar
-│   │   │   ├── Home.jsx            # Landing page
-│   │   │   ├── Register.jsx        # User registration
-│   │   │   ├── Login.jsx           # User login
-│   │   │   ├── UserProfile.jsx     # User dashboard
-│   │   │   ├── AuthorProfile.jsx   # Author dashboard
-│   │   │   ├── AuthorArticles.jsx  # Author's article list
-│   │   │   ├── WriteArticles.jsx   # Create new article
-│   │   │   ├── EditArticle.jsx     # Edit existing article
-│   │   │   ├── ArticleByID.jsx     # Single article view
-│   │   │   ├── ProtectedRoute.jsx  # Role-based route guard
-│   │   │   └── Unauthorized.jsx    # 403 page
-│   │   ├── store/            # Zustand state stores
-│   │   ├── styles/           # Custom stylesheets
-│   │   ├── axiosConfig.js    # Centralized Axios instance
-│   │   └── App.jsx           # Router configuration
-│   ├── vercel.json           # Vercel deployment config
-│   └── vite.config.js        # Vite configuration
+│   │   ├── components/            # React components
+│   │   ├── store/                 # Zustand state
+│   │   ├── styles/                # Tailwind & custom styles
+│   │   ├── axiosConfig.js         # HTTP client config
+│   │   └── App.jsx                # Main app component
+│   ├── package.json               # Frontend dependencies
+│   ├── vite.config.js             # Vite configuration
+│   └── vercel.json                # Vercel deployment config
 │
-└── README.md
+└── blog-app-backend/              # Express.js backend
+    ├── README.md                  # Backend-specific docs
+    ├── APIs/
+    │   ├── AdminAPI.js            # Admin endpoints
+    │   ├── AuthorAPI.js           # Author endpoints
+    │   ├── CommonAPI.js           # Auth endpoints
+    │   └── UserAPI.js             # User endpoints
+    ├── config/                    # Cloudinary & other config
+    ├── middlewares/               # Express middlewares
+    ├── models/                    # MongoDB schemas
+    ├── server.js                  # Server entry point
+    ├── package.json               # Backend dependencies
+    └── render.yaml                # Render deployment config
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
+- **Node.js** ≥ 18.x
+- **npm** ≥ 9.x
+- **MongoDB Atlas** account (free tier available)
+- **Cloudinary** account (free tier available)
 
-- **Node.js** ≥ 18
-- **npm** ≥ 9
-- A **MongoDB Atlas** cluster (or local MongoDB instance)
-- A **Cloudinary** account (for image uploads)
+### Setup Instructions
 
-### 1. Clone the repository
-
+#### 1. Clone Repository
 ```bash
-git clone https://github.com/dharanirampongu/blog-app.git
-cd blog-app
+git clone https://github.com/CHANDINI-JAKKU/Blog-App.git
+cd Blog-App
 ```
 
-### 2. Backend setup
-
-```bash
-cd blog-app-backend
-npm install
-```
-
-Create a `.env` file in `blog-app-backend/`:
-
-```env
-PORT=4000
-DB_URL=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/BlogApp
-SECRET_KEY=your_jwt_secret_key
-FRONTEND_URL=http://localhost:5173
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-```
-
-Start the server:
-
-```bash
-npm start
-```
-
-### 3. Frontend setup
-
+#### 2. Frontend Setup
 ```bash
 cd blog-app-frontend
 npm install
 npm run dev
 ```
+App will be available at **http://localhost:5173**
 
-The app will be available at **http://localhost:5173**.
+#### 3. Backend Setup
+```bash
+cd blog-app-backend
+npm install
+npm start
+```
+Server will run on **http://localhost:4000** (or configured PORT)
+
+For detailed setup instructions, see:
+- [Frontend README](./blog-app-frontend/README.md#-installation--setup)
+- [Backend README](./blog-app-backend/README.md#-installation--setup)
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Architecture
 
-### Auth (`/auth`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/register` | Register a new user |
-| POST | `/auth/login` | Login & receive JWT cookie |
-| POST | `/auth/logout` | Clear auth cookie |
+The backend provides REST API endpoints organized by role:
 
-### User (`/user-api`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/user-api/articles` | Get all articles with optional search, category, tag, and sort filters |
-| GET | `/user-api/article/:id` | Get a single article by ID |
-| PUT | `/user-api/articles` | Add a comment to an article |
-| POST | `/user-api/articles/like` | Like or unlike an article |
-| GET | `/user-api/articles/recommended/:id` | Get recommended articles based on author, category, and tags |
-| GET | `/user-api/saved-articles` | Get saved articles for the current user |
-| POST | `/user-api/saved-articles` | Save an article for later |
-| DELETE | `/user-api/saved-articles/:articleId` | Remove a saved article |
+- **Auth** — User registration, login, logout
+- **User** — Article browsing, comments, likes, saved articles
+- **Author** — Article CRUD operations
+- **Admin** — User management
 
-### Author (`/author-api`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/author-api/articles` | Get author's articles |
-| POST | `/author-api/article` | Create a new article |
-| PUT | `/author-api/article` | Update an article |
-| DELETE | `/author-api/article/:id` | Soft-delete an article |
-
-### Admin (`/admin-api`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/admin-api/users` | Get all users |
-| PUT | `/admin-api/user/toggle` | Enable / disable a user account |
+See [Backend README](./blog-app-backend/README.md#-api-endpoints) for complete endpoint documentation.
 
 ---
 
 ## 🚢 Deployment
 
-| Layer | Platform | Config File |
-|-------|----------|-------------|
-| Frontend | Vercel | `vercel.json` |
-| Backend | Render | `render.yaml` |
+| Layer | Platform | Config File | Status |
+|-------|----------|-------------|--------|
+| Frontend | Vercel | `vercel.json` | ✅ Ready |
+| Backend | Render | `render.yaml` | ✅ Ready |
 
-> Set the same environment variables listed above in each platform's dashboard.
+### Deploy Frontend (Vercel)
+```bash
+cd blog-app-frontend
+vercel deploy --prod
+```
+
+### Deploy Backend (Render)
+- Connect GitHub repo to Render dashboard
+- Set environment variables
+- Auto-deploy on push to main
+
+See deployment docs:
+- [Frontend Deployment](./blog-app-frontend/README.md#-deployment)
+- [Backend Deployment](./blog-app-backend/README.md#-deployment)
+
+---
+
+## 🌟 Unique Features
+
+**Structured Article Experience**: Unlike traditional blogs, this platform creates a guided reading journey with:
+- Recommended next articles based on current content
+- Category-based article discovery
+- Author-following recommendations
+- Related content suggestions
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **ISC License**.
+This project is licensed under the **ISC License** — see LICENSE file for details.
+
+---
+
+## 👥 Support
+
+- 🐛 [Report Issues](https://github.com/CHANDINI-JAKKU/Blog-App/issues)
+- 💬 [Discussions](https://github.com/CHANDINI-JAKKU/Blog-App/discussions)
+- 📧 [Email Support](mailto:support@example.com)
+
+---
+
+## 🙏 Acknowledgments
+
+- React team for React 19
+- Vercel for hosting & deployment
+- Render for backend hosting
+- MongoDB Atlas for database
+- Cloudinary for image hosting
+- All open-source contributors
+
+---
+
+**Made with ❤️ using React 19 & Express.js**
