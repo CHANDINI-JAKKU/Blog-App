@@ -27,11 +27,28 @@ const articleSchema = new Schema(
       type: String,
       required: [true, "Category is required"],
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
     content: {
       type: String,
       required: [true, "Content is required"],
     },
     comments: [{ type: commentSchema, default: [] }],
+    courseImage: {
+      type: String,
+      default: "",
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    likedBy: [{ type: Types.ObjectId, ref: "user" }],
     isArticleActive: {
       type: Boolean,
       default: true,
@@ -45,6 +62,8 @@ const articleSchema = new Schema(
 );
 
 //create article model
+articleSchema.index({ title: "text", content: "text", tags: "text" });
+
 export const ArticleModel = model("article", articleSchema);
 
 // "mbsdf6sdf6df6sd6fs6dfs6df6sd"

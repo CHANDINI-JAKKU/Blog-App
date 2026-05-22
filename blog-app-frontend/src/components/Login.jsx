@@ -25,8 +25,12 @@ function Login() {
   } = useForm();
 
   const navigate = useNavigate();
-  //get state from auth store
-  const { login, currentUser, loading, error, isAuthenticated } = useAuth((state) => state);
+  // Select each piece individually to avoid re-renders on unrelated store updates
+  const login = useAuth((state) => state.login);
+  const currentUser = useAuth((state) => state.currentUser);
+  const loading = useAuth((state) => state.loading);
+  const error = useAuth((state) => state.error);
+  const isAuthenticated = useAuth((state) => state.isAuthenticated);
   //on user login
   const onUserLogin = (userCredObj) => {
     //call login() of auth store
@@ -58,7 +62,7 @@ function Login() {
   }
 
   return (
-    <div className={`${pageBackground} flex items-center justify-center py-16 px-4`}>
+    <div className="flex justify-center py-8">
       <div className={formCard}>
         {/* Title */}
         <h2 className={formTitle}>Sign In</h2>

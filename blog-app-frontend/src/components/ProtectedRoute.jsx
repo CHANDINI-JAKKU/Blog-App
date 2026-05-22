@@ -3,8 +3,10 @@ import { Navigate } from "react-router";
 import {toast} from "react-hot-toast";
 
 function ProtectedRoute({ children, allowedRoles }) {
-  //get user login status from store
-  const { loading, currentUser, isAuthenticated} = useAuth();
+  // Select specific state slices to avoid unnecessary re-renders
+  const loading = useAuth((state) => state.loading);
+  const currentUser = useAuth((state) => state.currentUser);
+  const isAuthenticated = useAuth((state) => state.isAuthenticated);
   //loading state
   if (loading) {
     return <p>Loading...</p>;

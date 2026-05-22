@@ -1,1 +1,87 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+/* ─── Universal box model ─────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Root variables & font rendering ─────────────────── */
+:root {
+  font-size: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Prevent text inflation in Edge/Mobile */
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ─── Document root ───────────────────────────────────── */
+html {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #0f172a;
+  color: #f8fafc;
+  /* Prevent Edge layout shift from scrollbar */
+  scrollbar-gutter: stable;
+}
+
+/* ─── React root ──────────────────────────────────────── */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ─── Media reset ─────────────────────────────────────── */
+img,
+video,
+svg,
+picture {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ─── Prevent flex children from overflowing ─────────── */
+/* Fixes Edge/Chromium flex shrink bugs */
+* {
+  min-width: 0;
+}
+
+/* Restore safe defaults for specific inline elements */
+button,
+input,
+select,
+textarea {
+  min-width: initial;
+  font: inherit;
+}
+
+/* ─── Remove list styles ──────────────────────────────── */
+ul,
+ol {
+  list-style: none;
+}
+
+/* ─── Anchor reset ────────────────────────────────────── */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+

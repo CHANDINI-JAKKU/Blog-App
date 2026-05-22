@@ -63,7 +63,7 @@ function Register() {
   };
 
   return (
-    <div className={`${pageBackground} flex items-center justify-center py-16 px-4`}>
+    <div className="flex justify-center py-8">
       <div className={formCard}>
         <h2 className={formTitle}>Create an Account</h2>
 
@@ -85,7 +85,7 @@ function Register() {
                   })}
                   className="accent-blue-600 w-4 h-4"
                 />
-                <span className="text-sm">User</span>
+                <span className="text-sm text-[#1d1d1f]">User</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -97,7 +97,7 @@ function Register() {
                   })}
                   className="accent-blue-600 w-4 h-4"
                 />
-                <span className="text-sm">Author</span>
+                <span className="text-sm text-[#1d1d1f]">Author</span>
               </label>
             </div>
 

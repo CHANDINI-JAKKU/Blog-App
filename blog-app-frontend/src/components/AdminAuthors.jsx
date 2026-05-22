@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { axiosInstance as axios } from "../axiosConfig";
 import { loadingClass, errorClass, emptyStateClass } from "../styles/common";
 
@@ -6,6 +6,8 @@ function AdminAuthors() {
   const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const authorsLoaded = useRef(false);
 
   const getAuthors = async () => {
     try {
@@ -17,6 +19,7 @@ function AdminAuthors() {
           (user) => user.role === "AUTHOR"
         );
         setAuthors(filteredAuthors);
+        authorsLoaded.current = true;
       }
     } catch (err) {
       setError(err.response?.data?.error || "Failed to fetch authors");
@@ -26,6 +29,7 @@ function AdminAuthors() {
   };
 
   useEffect(() => {
+    if (authorsLoaded.current) return;
     getAuthors();
   }, []);
 

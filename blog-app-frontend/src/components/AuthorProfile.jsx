@@ -4,6 +4,7 @@ import { useAuth } from "../store/authStore";
 import { pageWrapper, navLinkClass, divider } from "../styles/common";
 
 function AuthorProfile() {
+  // Select specific state slices to avoid unnecessary re-renders
   const currentUser = useAuth((state) => state.currentUser);
   const logout = useAuth((state) => state.logout);
   const navigate = useNavigate();

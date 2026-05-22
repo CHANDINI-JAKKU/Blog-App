@@ -104,7 +104,7 @@ function App() {
   ]);
 
   return (
-    <div>
+    <div className="flex-1 flex flex-col w-full">
       <Toaster position="top-center" reverseOrder={false} />
       <RouterProvider router={routerObj} />
     </div>

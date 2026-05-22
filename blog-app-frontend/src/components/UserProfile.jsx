@@ -1,83 +1,53 @@
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../store/authStore";
 import { useNavigate } from "react-router";
-
 import { axiosInstance as axios } from "../axiosConfig";
-import { useEffect, useState } from "react";
-
-import {
-  articleGrid,
-  articleCardClass,
-  articleTitle,
-  ghostBtn,
-  loadingClass,
-  errorClass,
-  timestampClass,
-} from "../styles/common.js";
 
 function UserProfile() {
   const logout = useAuth((state) => state.logout);
   const currentUser = useAuth((state) => state.currentUser);
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [articles, setArticles] = useState([]);
+  const [savedArticles, setSavedArticles] = useState([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [savedError, setSavedError] = useState(null);
+
+  const savedLoaded = useRef(false);
 
   useEffect(() => {
-    const getArticles = async () => {
-      setLoading(true);
+    if (!currentUser?._id || savedLoaded.current) return;
+
+    const loadSavedArticles = async () => {
+      setLoadingSaved(true);
       try {
-        //read articles of all authors
-        let res=await axios.get("/user-api/articles")
-        //update articles state
-        if(res.status===200){
-          setArticles((await res).data.payload)
+        const res = await axios.get("/user-api/saved-articles");
+        if (res.status === 200) {
+          setSavedArticles(res.data.payload || []);
+          savedLoaded.current = true;
         }
       } catch (err) {
-        setError(err.response?.data?.error || "Something went wrong");
+        setSavedError(err.response?.data?.message || "Failed to load saved articles.");
       } finally {
-        setLoading(false);
+        setLoadingSaved(false);
       }
     };
 
-    getArticles();
-  }, []);
-
-  // convert UTC → IST
-  const formatDateIST = (date) => {
-    return new Date(date).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  };
+    loadSavedArticles();
+  }, [currentUser?._id]);
 
   const onLogout = async () => {
     await logout();
-
     navigate("/login");
   };
 
-  const navigateToArticleByID = (articleObj) => {
-    navigate(`/article/${articleObj._id}`, {
-      state: articleObj,
-    });
+  const openArticle = (article) => {
+    navigate(`/article/${article._id}`, { state: article });
   };
 
-  if (loading) {
-    return <p className={loadingClass}>Loading articles...</p>;
-  }
-
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      {/* ERROR */}
-      {error && <p className={errorClass}>{error}</p>}
-
-      {/* PROFILE HEADER */}
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
       <div className="bg-white border border-[#e8e8ed] rounded-3xl p-6 mb-8 shadow-sm flex items-center justify-between">
-        {/* LEFT */}
         <div className="flex items-center gap-4">
-          {/* Avatar */}
           {currentUser?.profileImageUrl ? (
             <img
               src={currentUser.profileImageUrl}
@@ -90,14 +60,12 @@ function UserProfile() {
             </div>
           )}
 
-          {/* Name */}
           <div>
             <p className="text-sm text-[#6e6e73]">Welcome back</p>
             <h2 className="text-xl font-semibold text-[#1d1d1f]">{currentUser?.firstName}</h2>
           </div>
         </div>
 
-        {/* LOGOUT */}
         <button
           className="bg-[#ff3b30] text-white text-sm px-5 py-2 rounded-full hover:bg-[#d62c23] transition"
           onClick={onLogout}
@@ -106,33 +74,41 @@ function UserProfile() {
         </button>
       </div>
 
-      {/* ARTICLES SECTION */}
       <div className="mt-4">
-        <h3 className="text-lg font-semibold text-[#1d1d1f] mb-4">Latest Articles</h3>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-[#1d1d1f]">Saved Articles</h3>
+            <p className="text-sm text-[#6e6e73] mt-1">Your bookmarked articles to review later.</p>
+          </div>
+          <span className="text-sm text-[#6e6e73]">
+            {savedArticles.length} saved {savedArticles.length === 1 ? "article" : "articles"}
+          </span>
+        </div>
 
-        {/* EMPTY STATE */}
-        {articles.length === 0 ? (
-          <p className="text-[#a1a1a6] text-sm text-center py-10">No articles available yet</p>
+        {savedError && <p className="text-sm text-red-600 mb-4">{savedError}</p>}
+
+        {loadingSaved ? (
+          <p className="text-sm text-[#6e6e73]">Loading saved articles...</p>
+        ) : savedArticles.length === 0 ? (
+          <p className="text-[#a1a1a6] text-sm text-center py-10">No saved articles yet.</p>
         ) : (
-          <div className={articleGrid}>
-            {articles.map((articleObj) => (
-              <div className={articleCardClass} key={articleObj._id}>
-                <div className="flex flex-col h-full">
-                  {/* TOP */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {savedArticles.map((article) => (
+              <button
+                key={article._id}
+                type="button"
+                onClick={() => openArticle(article)}
+                className="bg-[#f5f5f7] rounded-3xl border border-[#e8e8ed] p-5 text-left hover:bg-[#ebebf0] transition duration-200"
+              >
+                <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className={articleTitle}>{articleObj.title}</p>
-
-                    <p className="text-sm text-[#6e6e73] mt-1">{articleObj.content.slice(0, 80)}...</p>
-
-                    <p className={`${timestampClass} mt-2`}>{formatDateIST(articleObj.createdAt)}</p>
+                    <h4 className="text-base font-semibold text-[#1d1d1f] line-clamp-2">{article.title}</h4>
+                    <p className="text-xs uppercase tracking-[0.2em] text-[#0066cc] mt-2">{article.category}</p>
                   </div>
-
-                  {/* ACTION */}
-                  <button className={`${ghostBtn} mt-auto pt-4`} onClick={() => navigateToArticleByID(articleObj)}>
-                    Read Article →
-                  </button>
+                  <span className="text-xs text-[#6e6e73]">{new Date(article.createdAt).toLocaleDateString()}</span>
                 </div>
-              </div>
+                <p className="text-sm text-[#6e6e73] mt-3 line-clamp-3">{article.content}</p>
+              </button>
             ))}
           </div>
         )}

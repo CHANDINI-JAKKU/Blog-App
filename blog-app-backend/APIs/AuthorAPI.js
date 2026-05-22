@@ -22,11 +22,18 @@ authorApp.post("/article",verifyToken("AUTHOR"),async(req,res)=>{
         return res.status(403).json({message:"only author can publish"})
     }
 
-        const articleDoc= new ArticleModel(articleObj)
-        //save document
-        await articleDoc.save()
-        //send res
-        res.status(201).json({message:"article published"})
+    if (typeof articleObj.tags === "string") {
+        articleObj.tags = articleObj.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+    }
+
+    const articleDoc= new ArticleModel(articleObj)
+    //save document
+    await articleDoc.save()
+    //send res
+    res.status(201).json({message:"article published"})
 })
 
 //read own articles
@@ -43,10 +50,16 @@ authorApp.put("/articles",verifyToken("AUTHOR"),async(req,res)=>{
     //get author id from decoded token
     const authorIdOfToken=req.user?.id;
     //get modified article from client
-    const {articleId,title,category,content}=req.body
+    const {articleId,title,category,content,courseImage,tags}=req.body
+    const sanitizedTags = typeof tags === "string"
+        ? tags.split(",").map((tag) => tag.trim()).filter(Boolean)
+        : Array.isArray(tags)
+        ? tags.filter(Boolean)
+        : []
+
     //find by id and update
     const modifiedArticle = await ArticleModel.findOneAndUpdate({_id:articleId,author:authorIdOfToken},
-        {$set:{title,category,content}},
+        {$set:{title,category,content,courseImage,tags:sanitizedTags}},
         {new:true}
     )
     if(!modifiedArticle){

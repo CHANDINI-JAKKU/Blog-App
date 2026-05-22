@@ -3,9 +3,9 @@
 // Inspired by apple.com — no gradients, no shadows, pure typography & spacing
 
 // ─── Layout ───────────────────────────────────────────
-export const pageBackground = "bg-white min-h-screen";
-export const pageWrapper = "max-w-5xl mx-auto px-6 py-16";
-export const section = "mb-14";
+export const pageBackground = "bg-slate-950 text-slate-100";
+export const pageWrapper = "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6";
+export const section = "mb-6";
 
 // ─── Cards ────────────────────────────────────────────
 export const cardClass =
@@ -38,12 +38,18 @@ export const submitBtn =
 
 // ─── Navbar ───────────────────────────────────────────
 export const navbarClass =
-  "bg-white/85 backdrop-blur-xl backdrop-saturate-150 border-b border-[#e8e8ed] px-8 h-[52px] flex items-center sticky top-0 z-50";
-export const navContainerClass = "max-w-5xl mx-auto w-full flex items-center justify-between";
-export const navBrandClass = "text-base font-semibold text-[#1d1d1f] tracking-tight";
+  "bg-gradient-to-r from-[#1e293b] via-[#334155] to-[#1e40af] text-white/95 backdrop-blur-md border-b border-slate-700/50 h-16 flex items-center sticky top-0 z-50 shadow-lg w-full overflow-x-hidden";
+export const navContainerClass = "w-full max-w-[1200px] mx-auto px-6 lg:px-8 flex items-center justify-between";
+export const navBrandClass = "text-lg font-bold text-white tracking-tight";
 export const navLinksClass = "flex items-center gap-7";
-export const navLinkClass = "text-[0.8rem] text-[#6e6e73] hover:text-[#1d1d1f] transition-colors font-normal";
-export const navLinkActiveClass = "text-[0.8rem] text-[#0066cc] font-medium";
+export const navLinkClass = "text-sm text-slate-100/80 hover:text-white transition-colors font-medium";
+export const navLinkActiveClass = "text-sm text-white font-semibold underline underline-offset-4 decoration-sky-400/80";
+
+// ─── Footer ───────────────────────────────────────────
+export const footerClass = "bg-slate-900/50 border-t border-slate-800/50 py-6 text-slate-300 w-full";
+export const footerContainerClass = "w-full max-w-[1200px] mx-auto px-6 lg:px-8 flex flex-col items-center gap-4";
+export const footerLinkClass = "text-slate-400 hover:text-sky-300 transition-colors";
+export const footerTextClass = "text-slate-500 text-sm";
 
 // ─── Article / Blog ───────────────────────────────────
 //export const articleGrid        = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e8e8ed] border border-[#e8e8ed] rounded-2xl overflow-hidden"
@@ -58,7 +64,7 @@ export const timestampClass = "text-xs text-[#a1a1a6] flex items-center gap-1.5"
 export const tagClass = "text-[0.65rem] font-semibold text-[#0066cc] uppercase tracking-widest w-fit";
 
 // ─── Article Page ─────────────────────────────────────
-export const articlePageWrapper = "max-w-3xl mx-auto px-6 py-14";
+export const articlePageWrapper = "w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12";
 
 export const articleHeader = "mb-10 flex flex-col gap-4";
 
@@ -93,8 +99,8 @@ export const errorClass =
   "bg-[#ff3b30]/[0.06] text-[#cc2f26] border border-[#ff3b30]/[0.18] rounded-xl px-4 py-3 text-sm";
 export const successClass =
   "bg-[#34c759]/[0.07] text-[#248a3d] border border-[#34c759]/20 rounded-xl px-4 py-3 text-sm";
-export const loadingClass = "text-[#0066cc]/60 text-sm animate-pulse text-center py-10";
-export const emptyStateClass = "text-center text-[#a1a1a6] py-16 text-sm";
+export const loadingClass = "text-[#0066cc]/60 text-sm animate-pulse text-center py-6";
+export const emptyStateClass = "text-center text-[#a1a1a6] py-8 text-sm";
 
 // ─── Comments ───────────────────────────────────────
 export const commentsWrapper = "mt-12 flex flex-col gap-6";
@@ -115,4 +121,4 @@ export const avatar =
 export const commentUserRow = "flex items-center gap-3";
 
 // ─── Divider ──────────────────────────────────────────
-export const divider = "border-t border-[#e8e8ed] my-10";
+export const divider = "border-t border-[#e8e8ed] my-6";

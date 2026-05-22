@@ -18,7 +18,11 @@ A full-stack blogging platform with role-based access control, built with **Reac
   - **User** — browse articles, post comments
   - **Author** — write, edit, and manage their own articles
   - **Admin** — manage users, enable / disable accounts
-- **Article Management** — full CRUD for articles with categories & comments
+- **Article Management** — full CRUD for articles with categories, tags & comments
+- **Search and discovery** — full-text search, category/tag filtering, and trending/popular article lists
+- **Recommended Articles** — each article suggests related content by author, category, or tags
+- **Saved Articles** — users can bookmark articles for later review in their profile
+- **Likes** — readers can like articles and authors can track engagement
 - **Image Uploads** — profile pictures & article images via Cloudinary + Multer
 - **Protected Routes** — client-side route guards based on user role
 
@@ -54,6 +58,10 @@ A full-stack blogging platform with role-based access control, built with **Reac
 - **MongoDB Atlas** (cloud-hosted)
 
 ---
+
+## 🌟 Unique Learning Experience
+
+This app takes the traditional blog format a step further by making content feel like a structured article experience. Users can browse articles by category, follow related reading paths, and discover recommended next articles while reading.
 
 ## 📁 Project Structure
 
@@ -167,8 +175,14 @@ The app will be available at **http://localhost:5173**.
 ### User (`/user-api`)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/user-api/articles` | Get all articles |
-| POST | `/user-api/comment` | Add a comment to an article |
+| GET | `/user-api/articles` | Get all articles with optional search, category, tag, and sort filters |
+| GET | `/user-api/article/:id` | Get a single article by ID |
+| PUT | `/user-api/articles` | Add a comment to an article |
+| POST | `/user-api/articles/like` | Like or unlike an article |
+| GET | `/user-api/articles/recommended/:id` | Get recommended articles based on author, category, and tags |
+| GET | `/user-api/saved-articles` | Get saved articles for the current user |
+| POST | `/user-api/saved-articles` | Save an article for later |
+| DELETE | `/user-api/saved-articles/:articleId` | Remove a saved article |
 
 ### Author (`/author-api`)
 | Method | Endpoint | Description |

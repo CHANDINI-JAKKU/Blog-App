@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { axiosInstance as axios } from "../axiosConfig";
 import { loadingClass, errorClass, emptyStateClass } from "../styles/common";
 
@@ -6,6 +6,8 @@ function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const usersLoaded = useRef(false);
 
   const getUsers = async () => {
     try {
@@ -17,6 +19,7 @@ function AdminUsers() {
           (user) => user.role === "USER"
         );
         setUsers(filteredUsers);
+        usersLoaded.current = true;
       }
     } catch (err) {
       setError(err.response?.data?.error || "Failed to fetch users");
@@ -26,6 +29,7 @@ function AdminUsers() {
   };
 
   useEffect(() => {
+    if (usersLoaded.current) return;
     getUsers();
   }, []);
 
