@@ -6,7 +6,6 @@ import {
   formTitle,
   inputClass,
   labelClass,
-  pageBackground,
   submitBtn,
   mutedText,
 } from "../styles/common";
@@ -14,214 +13,193 @@ import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import { useState } from "react";
 import { axiosInstance as axios } from "../axiosConfig";
+import { User, Mail, Lock, Sparkles, UserCheck, PenTool } from "lucide-react";
 
 function Register() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      role: "USER",
+    },
+  });
+
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
-  const [preview, setPriview] = useState(null);
+  const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
 
-  //When user registration submitted
+  const selectedRole = watch("role");
+
   const onUserRegister = async (userObj) => {
-    console.log(userObj);
-    let {profileImageUrl}=userObj
-    // file + userObj -->FormData
-    //create ForMData object
     const formData = new FormData();
-    //add all user properties and file to this formdata object
     formData.append("role", userObj.role);
     formData.append("firstName", userObj.firstName);
-    formData.append("lastName", userObj.lastName);
+    formData.append("lastName", userObj.lastName || "");
     formData.append("email", userObj.email);
     formData.append("password", userObj.password);
-    //Append if image is exists
-    if (profileImageUrl?.[0]) {
-      formData.append("profileImageUrl", profileImageUrl[0]);
+
+    if (userObj.profileImageUrl?.[0]) {
+      formData.append("profileImageUrl", userObj.profileImageUrl[0]);
     }
-   console.log(profileImageUrl)
+
     try {
-      //start loading
       setLoading(true);
-      //make HTTP POST req to create User in backend
+      setApiError(null);
       let res = await axios.post("/auth/users", formData);
 
       if (res.status === 201) {
-        //navigate to Login
         navigate("/login");
       }
     } catch (err) {
-      console.log("err in registration", err);
-      setApiError(err.response?.data?.error || "Registration failed");
+      setApiError(err.response?.data?.error || "Registration failed. Please check details.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center py-8">
+    <div className="flex justify-center py-12 px-4 sm:px-6">
       <div className={formCard}>
-        <h2 className={formTitle}>Create an Account</h2>
+        {/* Ambient Top Glow */}
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
 
-        {/* API Error */}
-        {apiError && <p className={errorClass}>{apiError}</p>}
+        <div className="text-center mb-8">
+          <div className="mx-auto h-12 w-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 mb-4">
+            <Sparkles className="h-6 w-6 text-white" />
+          </div>
+          <h2 className={formTitle}>Create Account</h2>
+          <p className="text-sm text-slate-400 -mt-6">Join our community of creators, readers, and innovators.</p>
+        </div>
+
+        {apiError && <div className={errorClass}>{apiError}</div>}
 
         <form onSubmit={handleSubmit(onUserRegister)}>
-          {/* ROLE */}
-          <div className="mb-5">
-            <p className={labelClass}>Register as</p>
+          {/* ROLE SELECTOR */}
+          <div className="mb-6">
+            <label className={labelClass}>Select Account Type</label>
 
-            <div className="flex gap-6 mt-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="USER"
-                  {...register("role", {
-                    required: "Please select a role",
-                  })}
-                  className="accent-blue-600 w-4 h-4"
-                />
-                <span className="text-sm text-[#1d1d1f]">User</span>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <label
+                className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                  selectedRole === "USER"
+                    ? "bg-cyan-500/10 border-cyan-500 text-cyan-300 font-bold shadow-md shadow-cyan-500/10"
+                    : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700"
+                }`}
+              >
+                <input type="radio" value="USER" {...register("role")} className="sr-only" />
+                <UserCheck size={16} />
+                <span className="text-sm">Reader (User)</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="AUTHOR"
-                  {...register("role", {
-                    required: "Please select a role",
-                  })}
-                  className="accent-blue-600 w-4 h-4"
-                />
-                <span className="text-sm text-[#1d1d1f]">Author</span>
+              <label
+                className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                  selectedRole === "AUTHOR"
+                    ? "bg-cyan-500/10 border-cyan-500 text-cyan-300 font-bold shadow-md shadow-cyan-500/10"
+                    : "bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700"
+                }`}
+              >
+                <input type="radio" value="AUTHOR" {...register("role")} className="sr-only" />
+                <PenTool size={16} />
+                <span className="text-sm font-medium">Writer (Author)</span>
               </label>
             </div>
-
-            {errors.role && <p className={errorClass}>{errors.role.message}</p>}
           </div>
 
-          <div className={divider} />
-
           {/* NAME */}
-          <div className="sm:flex gap-4 mb-4">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div>
               <label className={labelClass}>First Name</label>
               <input
                 type="text"
                 className={inputClass}
-                placeholder="First name"
+                placeholder="Alex"
                 {...register("firstName", {
                   required: "First name is required",
-                  minLength: {
-                    value: 2,
-                    message: "At least 2 characters required",
-                  },
-                  maxLength: {
-                    value: 30,
-                    message: "Max 30 characters allowed",
-                  },
-                  validate: (v) => v.trim().length > 0 || "Cannot be empty",
+                  minLength: { value: 2, message: "At least 2 characters" },
                 })}
               />
-              {errors.firstName && <p className={errorClass}>{errors.firstName.message}</p>}
+              {errors.firstName && <p className="text-xs text-rose-400 mt-1">{errors.firstName.message}</p>}
             </div>
 
-            <div className="flex-1">
+            <div>
               <label className={labelClass}>Last Name</label>
               <input
                 type="text"
                 className={inputClass}
-                placeholder="Last name"
-                {...register("lastName", {
-                  maxLength: {
-                    value: 30,
-                    message: "Max 30 characters allowed",
-                  },
-                })}
+                placeholder="Morgan"
+                {...register("lastName")}
               />
-              {errors.lastName && <p className={errorClass}>{errors.lastName.message}</p>}
             </div>
           </div>
 
           {/* EMAIL */}
           <div className={formGroup}>
-            <label className={labelClass}>Email</label>
-            <input
-              type="email"
-              className={inputClass}
-              placeholder="you@example.com"
-              {...register("email", {
-                required: "Email is required",
-              })}
-            />
-            {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+            <label className={labelClass}>Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
+              <input
+                type="email"
+                className={`${inputClass} pl-11`}
+                placeholder="you@example.com"
+                {...register("email", { required: "Email is required" })}
+              />
+            </div>
+            {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email.message}</p>}
           </div>
 
           {/* PASSWORD */}
           <div className={formGroup}>
             <label className={labelClass}>Password</label>
-            <input
-              type="password"
-              className={inputClass}
-              placeholder="Min. 8 characters"
-              {...register("password", {
-                required: "Password is required",
-              })}
-            />
-            {errors.password && <p className={errorClass}>{errors.password.message}</p>}
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
+              <input
+                type="password"
+                className={`${inputClass} pl-11`}
+                placeholder="••••••••"
+                {...register("password", { required: "Password is required" })}
+              />
+            </div>
+            {errors.password && <p className="text-xs text-rose-400 mt-1">{errors.password.message}</p>}
           </div>
 
           {/* PROFILE IMAGE */}
           <div className={formGroup}>
-            <label className={labelClass}>Profile Image</label>
+            <label className={labelClass}>Profile Photo (Optional)</label>
 
             <input
               type="file"
-              className={inputClass}
+              className={`${inputClass} text-slate-400 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer`}
               accept="image/png, image/jpeg"
-              {...register("profileImageUrl", {
-                validate: {
-                  fileType: (files) => {
-                    if (!files?.[0]) return true;
-                    return ["image/png", "image/jpeg"].includes(files[0].type) || "Only JPG/PNG allowed";
-                  },
-                  fileSize: (files) => {
-                    if (!files?.[0]) return true;
-                    return files[0].size <= 2 * 1024 * 1024 || "MAx size 2MB";
-                  },
-                },
-              })}
+              {...register("profileImageUrl")}
               onChange={(event) => {
                 let file = event.target.files[0];
                 if (file) {
-                  setPriview(URL.createObjectURL(file));
+                  setPreview(URL.createObjectURL(file));
                 }
               }}
             />
 
-            {errors.profileImageUrl && <p className={errorClass}>{errors.profileImageUrl.message}</p>}
-            {/* image preview */}
             {preview && (
               <div className="mt-3 flex justify-center">
-                <img src={preview} alt="" className="w-24 h-24 rounded-full object-cover" />
+                <img src={preview} alt="Avatar preview" className="w-16 h-16 rounded-full object-cover border-2 border-cyan-500/40" />
               </div>
             )}
           </div>
 
           {/* SUBMIT */}
-          <button type="submit" className={submitBtn}>
-            Create Account
+          <button type="submit" disabled={loading} className={submitBtn}>
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         {/* FOOTER */}
-        <p className={`${mutedText} text-center mt-5`}>
+        <p className={`${mutedText} text-center mt-6`}>
           Already have an account?{" "}
-          <NavLink to="/login" className="text-[#0066cc] font-medium">
+          <NavLink to="/login" className="text-cyan-400 font-semibold hover:text-cyan-300">
             Sign in
           </NavLink>
         </p>

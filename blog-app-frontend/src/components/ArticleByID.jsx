@@ -3,18 +3,16 @@ import { useEffect, useState } from "react";
 import { axiosInstance as axios } from "../axiosConfig";
 import { useAuth } from "../store/authStore";
 import { toast } from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import { Heart, Bookmark, Share2, Calendar, User, Clock, ArrowLeft, Send, Trash2, Edit3, Sparkles } from "lucide-react";
 import {
   articlePageWrapper,
-  articleHeader,
   articleCategory,
   articleMainTitle,
   articleAuthorRow,
   authorInfo,
   articleContent,
   articleFooter,
-  articleActions,
-  editBtn,
-  deleteBtn,
   loadingClass,
   errorClass,
   inputClass,
@@ -27,13 +25,12 @@ import {
   commentTime,
   commentText,
 } from "../styles/common.js";
-import { useForm } from "react-hook-form";
 
 function ArticleByID() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
   const user = useAuth((state) => state.currentUser);
 
@@ -50,19 +47,16 @@ function ArticleByID() {
   const isLiked = !!article?.isLiked;
 
   useEffect(() => {
-    //if aticle is transferred, then use it
-    if (article) return;
+    if (article && article._id === id) return;
 
-    //otherwise, make api req to read that article by id
     const getArticle = async () => {
       setLoading(true);
-
+      setError(null);
       try {
         const res = await axios.get(`/user-api/article/${id}`);
-
         setArticle(res.data.payload);
       } catch (err) {
-        setError(err.response?.data?.error);
+        setError(err.response?.data?.message || err.response?.data?.error || "Unable to load article");
       } finally {
         setLoading(false);
       }
@@ -92,10 +86,11 @@ function ArticleByID() {
   }, [article]);
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      dateStyle: "medium",
-      timeStyle: "short",
+    if (!date) return "Recently";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -128,11 +123,10 @@ function ArticleByID() {
           useAuth.setState({
             currentUser: { ...user, savedArticles: res.data.payload },
           });
-          toast.success("Saved article for later");
+          toast.success("Article saved for later");
         }
       }
     } catch (err) {
-      console.error(err);
       toast.error(err.response?.data?.message || "Unable to update saved articles.");
     } finally {
       setSaving(false);
@@ -161,78 +155,63 @@ function ArticleByID() {
     }
   };
 
-  // delete & restore article
   const toggleArticleStatus = async () => {
     const newStatus = !article.isArticleActive;
-
     const confirmMsg = newStatus ? "Restore this article?" : "Delete this article?";
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      const res = await axios.patch(
-        "/author-api/articles",
-        { articleId: article._id, isArticleActive: newStatus }
-      );
-
-      console.log("SUCCESS:", res.data);
-
+      const res = await axios.patch("/author-api/articles", {
+        articleId: article._id,
+        isArticleActive: newStatus,
+      });
       setArticle(res.data.payload);
-
-      //  toast.success(res.data.message);
+      toast.success(newStatus ? "Article restored" : "Article deleted");
     } catch (err) {
-      console.log("ERROR:", err.response);
-
-      const msg = err.response?.data?.message;
-
-      if (err.response?.status === 400) {
-        toast(msg); // already deleted/active case
-      } else {
-        setError(msg || "Operation failed");
-      }
+      toast.error(err.response?.data?.message || "Operation failed");
     }
   };
 
-  //edit article
   const editArticle = (articleObj) => {
     navigate("/edit-article", { state: articleObj });
   };
 
-  //post comment by user
   const addComment = async (commentObj) => {
-    //{comment:"user comment"}
-    //add artcileId
-    commentObj.articleId = article._id;
-    console.log(commentObj);
-    let res = await axios.put("/user-api/articles", commentObj);
-    if (res.status === 200) {
-      
-      setArticle(res.data.payload);
+    if (!commentObj.comment?.trim()) return;
+    try {
+      commentObj.articleId = article._id;
+      let res = await axios.put("/user-api/articles", commentObj);
+      if (res.status === 200) {
+        setArticle(res.data.payload);
+        reset();
+        toast.success("Comment added!");
+      }
+    } catch (err) {
+      toast.error("Failed to post comment");
     }
   };
 
- // console.log("article",article)
-
-
-  const getBannerUrl = (article) => {
-    if (article.courseImage) return article.courseImage;
-
-    const fallbacks = {
-      technology: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-      programming: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
-      ai: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80",
-      "web-development": "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=800&q=80",
-    };
-    return fallbacks[article.category] || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80";
+  const getBannerUrl = (art) => {
+    if (art?.courseImage) return art.courseImage;
+    return "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80";
   };
 
-  if (loading) return <p className={loadingClass}>Loading article...</p>;
-  if (error) return <p className={errorClass}>{error}</p>;
+  if (loading) return <div className={loadingClass}>Loading article details...</div>;
+  if (error) return <div className="max-w-xl mx-auto my-12 p-6 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-center">{error}</div>;
   if (!article) return null;
 
   return (
-    <div className={articlePageWrapper}>
-      {/* Article Banner Hero */}
-      <div className="w-full h-64 md:h-80 rounded-3xl overflow-hidden mb-8 border border-[#e8e8ed]">
+    <div className={`${articlePageWrapper} space-y-8`}>
+      {/* Top Back Navigation */}
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-cyan-400 transition mb-2 cursor-pointer"
+      >
+        <ArrowLeft size={16} /> Back to Articles
+      </button>
+
+      {/* Hero Banner Image */}
+      <div className="w-full h-72 sm:h-96 rounded-3xl overflow-hidden relative border border-slate-800 shadow-2xl bg-slate-950">
         <img
           src={getBannerUrl(article)}
           alt={article.title}
@@ -241,161 +220,206 @@ function ArticleByID() {
             e.target.src = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80";
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-[#070b14]/40 to-transparent" />
+        
+        <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+          <span className={articleCategory}>{article.category || "Technology"}</span>
+          {article.isArticleActive === false && (
+            <span className="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase">
+              Deleted / Archived
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Header */}
-      <div className={articleHeader}>
-        <span className={articleCategory}>{article.category}</span>
-
-        <h1 className={`${articleMainTitle} uppercase`}>{article.title}</h1>
+      {/* Header Info */}
+      <div className="space-y-4">
+        <h1 className={articleMainTitle}>{article.title}</h1>
 
         <div className={articleAuthorRow}>
-          <div className={authorInfo}>✍️ {user?.role}</div>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
+              {article.author ? (typeof article.author === "string" ? article.author.charAt(0).toUpperCase() : "A") : "A"}
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">
+                {typeof article.author === "string" ? article.author : article.author?.firstName || "Tech Author"}
+              </p>
+              <p className="text-xs text-slate-400 flex items-center gap-2">
+                <Calendar size={12} /> Published on {formatDate(article.createdAt)}
+              </p>
+            </div>
+          </div>
 
-          <div>{formatDate(article.createdAt)}</div>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full">
+              <Clock size={14} className="text-cyan-400" /> 5 min read
+            </span>
+          </div>
         </div>
 
-        {user && (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
+        {/* Action Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-b border-slate-800 pb-6">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={toggleLike}
               disabled={liking}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition ${isLiked ? "bg-[#dc2626] text-white hover:bg-[#b91c1c]" : "bg-[#f3f4f6] text-[#1d1d1f] hover:bg-[#e5e7eb]"}`}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition shadow-lg cursor-pointer ${
+                isLiked
+                  ? "bg-rose-500 text-white shadow-rose-500/20"
+                  : "bg-slate-900/90 border border-slate-800 text-slate-200 hover:border-rose-500/40 hover:text-rose-400"
+              }`}
             >
-              {liking ? "Saving..." : isLiked ? `Liked (${article.likes || 0})` : `Like (${article.likes || 0})`}
+              <Heart size={16} className={isLiked ? "fill-white" : ""} />
+              <span>{article.likes || 0} Likes</span>
             </button>
 
-            {user.role === "USER" && (
+            {user?.role === "USER" && (
               <button
                 type="button"
                 onClick={toggleSavedArticle}
                 disabled={saving}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition ${isSaved ? "bg-[#1d4ed8] text-white hover:bg-[#1e40af]" : "bg-[#f3f4f6] text-[#1d1d1f] hover:bg-[#e5e7eb]"}`}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                  isSaved
+                    ? "bg-cyan-500 text-slate-950 font-bold shadow-cyan-500/20"
+                    : "bg-slate-900/90 border border-slate-800 text-slate-200 hover:border-cyan-500/40 hover:text-cyan-300"
+                }`}
               >
-                {saving ? "Saving..." : isSaved ? "Saved for later" : "Save for later"}
+                <Bookmark size={16} className={isSaved ? "fill-slate-950" : ""} />
+                <span>{isSaved ? "Saved" : "Save"}</span>
               </button>
             )}
           </div>
-        )}
+
+          {/* Author control buttons */}
+          {user?.role === "AUTHOR" && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => editArticle(article)}
+                className="inline-flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold px-4 py-2 rounded-full hover:bg-cyan-500/20 transition cursor-pointer"
+              >
+                <Edit3 size={14} /> Edit
+              </button>
+
+              <button
+                onClick={toggleArticleStatus}
+                className="inline-flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold px-4 py-2 rounded-full hover:bg-rose-500/20 transition cursor-pointer"
+              >
+                <Trash2 size={14} /> {article.isArticleActive ? "Delete" : "Restore"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className={articleContent}>{article.content}</div>
+      {/* Main Article Body */}
+      <div className="prose prose-invert max-w-none text-slate-200 leading-relaxed text-base sm:text-lg whitespace-pre-line py-4">
+        {article.content}
+      </div>
 
-      {/* Recommended articles */}
-      <div className="mt-12">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-[#1d1d1f]">Continue learning</h2>
-            <p className="text-sm text-[#6e6e73] mt-1">More related articles from the same author, category, or tags.</p>
-          </div>
-          {loadingRecommended && <span className="text-sm text-[#6e6e73]">Loading recommendations...</span>}
+      {/* Comments Section */}
+      <section className="pt-8 border-t border-slate-800 space-y-6">
+        <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+          <span>Discussion ({article.comments?.length || 0})</span>
+        </h3>
+
+        {/* Add Comment Form */}
+        {user?.role === "USER" ? (
+          <form onSubmit={handleSubmit(addComment)} className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              {...register("comment", { required: true })}
+              className={`${inputClass} flex-1`}
+              placeholder="Share your thoughts on this article..."
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-2xl hover:from-cyan-400 hover:to-blue-500 transition shadow-lg cursor-pointer"
+            >
+              <Send size={14} /> Comment
+            </button>
+          </form>
+        ) : !user ? (
+          <p className="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-2xl border border-slate-800 text-center">
+            Log in as a user to post a comment.
+          </p>
+        ) : null}
+
+        {/* Comment Cards List */}
+        <div className={commentsWrapper}>
+          {(!article.comments || article.comments.length === 0) ? (
+            <p className="text-slate-500 text-sm text-center py-6">No comments yet. Be the first to share your thoughts!</p>
+          ) : (
+            article.comments.map((commentObj, index) => {
+              const name = commentObj.user?.firstName || commentObj.user?.email || "Community Member";
+              const initial = name.charAt(0).toUpperCase();
+
+              return (
+                <div key={index} className={commentCard}>
+                  <div className={commentHeader}>
+                    <div className={commentUserRow}>
+                      <div className={avatar}>{initial}</div>
+                      <div>
+                        <p className={commentUser}>{name}</p>
+                        <p className={commentTime}>{formatDate(commentObj.createdAt)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className={commentText}>{commentObj.comment}</p>
+                </div>
+              );
+            })
+          )}
         </div>
+      </section>
 
-        {recommended.length === 0 ? (
-          <p className="text-[#6e6e73] text-sm">No related articles available yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Recommended Articles Section */}
+      {recommended.length > 0 && (
+        <section className="pt-12 border-t border-slate-800 space-y-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-cyan-400" />
+            <h2 className="text-2xl font-extrabold text-white">Recommended Readings</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {recommended.map((item) => (
               <button
                 key={item._id}
                 type="button"
                 onClick={() => openArticle(item)}
-                className="text-left bg-[#f5f5f7] border border-[#e8e8ed] rounded-3xl overflow-hidden hover:bg-[#ebebf0] transition duration-200"
+                className="text-left bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden hover:border-cyan-500/40 hover:bg-slate-900/90 transition duration-300 cursor-pointer shadow-lg group flex flex-col"
               >
-                <div className="h-32 w-full overflow-hidden relative">
+                <div className="h-36 w-full overflow-hidden relative bg-slate-950">
                   <img
                     src={getBannerUrl(item)}
                     alt={item.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80";
-                    }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
+                  <span className="absolute top-3 left-3 bg-slate-950/80 text-cyan-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">
+                    {item.category}
+                  </span>
                 </div>
-                <div className="p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#0066cc] mb-2">{item.category}</p>
-                  <h3 className="text-base font-semibold text-[#1d1d1f] line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-[#6e6e73] mt-2 line-clamp-2">{item.content}</p>
+                <div className="p-5 flex flex-col grow">
+                  <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition line-clamp-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                    {item.content}
+                  </p>
                 </div>
               </button>
             ))}
           </div>
-        )}
-      </div>
-
-      {/* AUTHOR actions */}
-      {user?.role === "AUTHOR" && (
-        <div className={articleActions}>
-          <button className={editBtn} onClick={() => editArticle(article)}>
-            Edit
-          </button>
-
-          <button className={deleteBtn} onClick={toggleArticleStatus}>
-            {article.isArticleActive ? "Delete" : "Restore"}
-          </button>
-        </div>
-      )}
-      {/* form to add comment if role is USER */}
-      {/* USER actions */}
-      {user?.role === "USER" && (
-        <div className={articleActions}>
-          <form onSubmit={handleSubmit(addComment)}>
-            <input
-              type="text"
-              {...register("comment")}
-              className={inputClass}
-              placeholder="Write your comment here..."
-            />
-            <button type="submit" className="bg-amber-600 text-white px-5 py-2 rounded-2xl mt-5">
-              Add comment
-            </button>
-          </form>
-        </div>
+        </section>
       )}
 
-      {/* comments */}
-      {/* Comments */}
-      <div className={commentsWrapper}>
-        {article.comments?.length === 0 && <p className="text-[#a1a1a6] text-sm text-center">No comments yet</p>}
-
-        {article.comments?.map((commentObj, index) => {
-          const name = commentObj.user?.email || "User";
-          const firstLetter = name.charAt(0).toUpperCase();
-
-          return (
-            <div key={index} className={commentCard}>
-              {/* Header */}
-              <div className={commentHeader}>
-                <div className={commentUserRow}>
-                  <div className={avatar}>{firstLetter}</div>
-
-                  <div>
-                    <p className={commentUser}>{name}</p>
-                    <p className={commentTime}>{formatDate(commentObj.createdAt || new Date())}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Comment */}
-              <p className={commentText}>{commentObj.comment}</p>
-            </div>
-          );
-        })}
+      {/* Footer Meta */}
+      <div className={articleFooter}>
+        Article ID: <span className="font-mono text-xs text-slate-400">{article._id}</span>
       </div>
-
-      {/* Footer */}
-      <div className={articleFooter}>Last updated: {formatDate(article.updatedAt)}</div>
     </div>
   );
 }
 
 export default ArticleByID;
-
-// {
-//   "user":"6989799b7013502767d3f82b",
-//   "articleId":"6989750220ce5bf826ec4f7e",
-//   "comment":"good article"
-
-// }

@@ -1,87 +1,74 @@
 @import "tailwindcss";
 
-/* ─── Universal box model ─────────────────────────────── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* ─── Root variables & font rendering ─────────────────── */
 :root {
-  font-size: 100%;
-  line-height: 1.5;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  /* Prevent text inflation in Edge/Mobile */
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
 }
 
-/* ─── Document root ───────────────────────────────────── */
 html {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  background-color: #070b14;
 }
 
 body {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: #0f172a;
-  color: #f8fafc;
-  /* Prevent Edge layout shift from scrollbar */
-  scrollbar-gutter: stable;
+  background-color: #070b14;
+  color: #f1f5f9;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* ─── React root ──────────────────────────────────────── */
 #root {
   width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
 }
 
-/* ─── Media reset ─────────────────────────────────────── */
-img,
-video,
-svg,
-picture {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* ─── Prevent flex children from overflowing ─────────── */
-/* Fixes Edge/Chromium flex shrink bugs */
-* {
-  min-width: 0;
+::-webkit-scrollbar-track {
+  background: #070b14;
 }
 
-/* Restore safe defaults for specific inline elements */
-button,
-input,
-select,
-textarea {
-  min-width: initial;
-  font: inherit;
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
 }
 
-/* ─── Remove list styles ──────────────────────────────── */
-ul,
-ol {
-  list-style: none;
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
-/* ─── Anchor reset ────────────────────────────────────── */
-a {
-  color: inherit;
-  text-decoration: none;
+/* Line clamp utilities safety */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 

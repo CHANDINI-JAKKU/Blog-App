@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../store/authStore";
 import { useNavigate } from "react-router";
 import { axiosInstance as axios } from "../axiosConfig";
+import { Bookmark, LogOut, Sparkles, User, Clock, ArrowRight } from "lucide-react";
+import { pageWrapper, divider } from "../styles/common";
 
 function UserProfile() {
   const logout = useAuth((state) => state.logout);
@@ -45,52 +47,72 @@ function UserProfile() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-white border border-[#e8e8ed] rounded-3xl p-6 mb-8 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className={pageWrapper}>
+      {/* USER PROFILE HEADER */}
+      <div className="bg-slate-900/70 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 mb-8 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 h-32 w-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex items-center gap-5">
           {currentUser?.profileImageUrl ? (
             <img
               src={currentUser.profileImageUrl}
-              className="w-16 h-16 rounded-full object-cover border"
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-cyan-500/40 shadow-lg"
               alt="profile"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-[#0066cc]/10 text-[#0066cc] flex items-center justify-center text-xl font-semibold">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-cyan-500/20">
               {currentUser?.firstName?.charAt(0).toUpperCase()}
             </div>
           )}
 
           <div>
-            <p className="text-sm text-[#6e6e73]">Welcome back</p>
-            <h2 className="text-xl font-semibold text-[#1d1d1f]">{currentUser?.firstName}</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Reader (User)
+              </span>
+            </div>
+            <h2 className="text-2xl font-extrabold text-white tracking-tight mt-1">
+              {currentUser?.firstName} {currentUser?.lastName}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">{currentUser?.email}</p>
           </div>
         </div>
 
         <button
-          className="bg-[#ff3b30] text-white text-sm px-5 py-2 rounded-full hover:bg-[#d62c23] transition"
+          className="inline-flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 text-rose-300 hover:bg-rose-500/20 text-xs font-bold px-5 py-2.5 rounded-full transition cursor-pointer"
           onClick={onLogout}
         >
-          Logout
+          <LogOut size={15} /> Sign Out
         </button>
       </div>
 
-      <div className="mt-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-[#1d1d1f]">Saved Articles</h3>
-            <p className="text-sm text-[#6e6e73] mt-1">Your bookmarked articles to review later.</p>
+      {/* SAVED ARTICLES SECTION */}
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-2">
+            <Bookmark className="h-5 w-5 text-cyan-400" />
+            <h3 className="text-xl font-extrabold text-white">Your Bookmarks & Saved Articles</h3>
           </div>
-          <span className="text-sm text-[#6e6e73]">
-            {savedArticles.length} saved {savedArticles.length === 1 ? "article" : "articles"}
+          <span className="text-xs font-semibold text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+            {savedArticles.length} {savedArticles.length === 1 ? "article" : "articles"} saved
           </span>
         </div>
 
-        {savedError && <p className="text-sm text-red-600 mb-4">{savedError}</p>}
+        {savedError && <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium">{savedError}</div>}
 
         {loadingSaved ? (
-          <p className="text-sm text-[#6e6e73]">Loading saved articles...</p>
+          <p className="text-cyan-400 text-xs animate-pulse">Loading saved articles...</p>
         ) : savedArticles.length === 0 ? (
-          <p className="text-[#a1a1a6] text-sm text-center py-10">No saved articles yet.</p>
+          <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 space-y-3">
+            <p className="text-sm">No saved articles yet.</p>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">Explore the home feed and click the "Save" button on any article to keep it in your personal reading list.</p>
+            <button
+              onClick={() => navigate("/")}
+              className="inline-flex items-center gap-2 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs px-5 py-2.5 rounded-full hover:from-cyan-400 hover:to-blue-500 shadow-md cursor-pointer"
+            >
+              Explore Feed <ArrowRight size={14} />
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {savedArticles.map((article) => (
@@ -98,16 +120,24 @@ function UserProfile() {
                 key={article._id}
                 type="button"
                 onClick={() => openArticle(article)}
-                className="bg-[#f5f5f7] rounded-3xl border border-[#e8e8ed] p-5 text-left hover:bg-[#ebebf0] transition duration-200"
+                className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-slate-800 p-6 text-left hover:border-cyan-500/40 hover:bg-slate-900/90 transition duration-300 cursor-pointer shadow-lg group flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-base font-semibold text-[#1d1d1f] line-clamp-2">{article.title}</h4>
-                    <p className="text-xs uppercase tracking-[0.2em] text-[#0066cc] mt-2">{article.category}</p>
-                  </div>
-                  <span className="text-xs text-[#6e6e73]">{new Date(article.createdAt).toLocaleDateString()}</span>
+                  <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 rounded-full uppercase">
+                    {article.category || "General"}
+                  </span>
+                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                    <Clock size={12} /> {new Date(article.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
-                <p className="text-sm text-[#6e6e73] mt-3 line-clamp-3">{article.content}</p>
+
+                <h4 className="text-base font-bold text-white group-hover:text-cyan-300 transition line-clamp-2">
+                  {article.title}
+                </h4>
+
+                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mt-auto">
+                  {article.content}
+                </p>
               </button>
             ))}
           </div>
