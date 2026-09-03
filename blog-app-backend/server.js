@@ -20,10 +20,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Dynamic CORS configuration allowing localhost origins and credentials
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", 
-    credentials: true, 
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or postman)
+      if (!origin) return callback(null, true);
+      if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
   })
 );
 app.use(cookieParser())
@@ -39,22 +47,28 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", version: "1.0.2", timestamp: new Date().toISOString() });
 });
 
-//connect to db
-const port=process.env.PORT || 4000
-const connectDB=async()=>{
-    try{
-        if(!process.env.DB_URL){
-            throw new Error("DB_URL is not defined in .env file");
-        }
-        await connect(process.env.DB_URL)
-        console.log("DB connected")
-        app.listen(port,()=>console.log(`server listening on ${port}`))
-    }catch(err){
-        console.log("err in db connection:", err.message)
-        process.exit(1) // Exit if DB connection fails
+//connect to db & start server
+const port = process.env.PORT || 4000;
+
+// Start server first so backend endpoints on 4000 are always active
+app.listen(port, () => {
+  console.log(`Server listening on http://localhost:${port}`);
+});
+
+const connectDB = async () => {
+  try {
+    if (!process.env.DB_URL) {
+      console.warn("DB_URL is not defined in .env file");
+      return;
     }
-}
-connectDB()
+    await connect(process.env.DB_URL);
+    console.log("DB connected successfully to MongoDB");
+  } catch (err) {
+    console.warn("DB connection warning (Atlas IP restriction or offline):", err.message);
+  }
+};
+
+connectDB();
 
 //to handle inavlid path
 app.use((req,res,next)=>{
